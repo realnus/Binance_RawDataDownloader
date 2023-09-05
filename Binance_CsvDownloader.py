@@ -9,6 +9,7 @@ import numpy as np
 import requests
 import pyodbc
 from datetime import datetime
+import db_credentials
 
 print("input Cumulative for Daily or Monthly (cumulative) , default = Daily, Daily=1, Monthly = 2")
 Cumulative = input()
@@ -41,10 +42,10 @@ if(interval == ""):
 
 Symbol = "" 
 # server = 'myserver,port' # to specify an alternate port
-server = '192.168.0.10' 
-database = 'Binance' 
-username = 'sa' 
-password = 'utkancikasd123!' 
+server =  db_credentials.server 
+database = 'Binance'
+username = db_credentials.username 
+password = db_credentials.password 
 conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
 #Read Symbols List
