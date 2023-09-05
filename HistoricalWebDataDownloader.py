@@ -1,4 +1,5 @@
 #Download from Url
+
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
@@ -8,6 +9,7 @@ import numpy as np
 import requests
 import pyodbc
 from datetime import datetime
+import db_credentials
 
 Symbol = "" 
 # server = 'myserver,port' # to specify an alternate port
@@ -18,21 +20,33 @@ password = 'utkancikasd123!'
 conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
 #Read Symbols List
-sqlSymbols = "select distinct(Pair) from OneMinute where Pair != 'SANTOSUSDT'"
+sqlSymbols = "select distinct(Pair) from OneMinute where Pair Not IN (select Distinct(Symbol) from  AggTrades with(nolock)) order by 1 asc"
+
+"""
+error pairwise
+**mtlusdt HATA VERDİ bak ona, bakalım tekrar hata verecek mi
+ADAUSDC Invalid String length hatası verdi
+ ALICEUSDT hata verdi
+ ALPHABTC
+ BTCSTBUSD
+ DOGEBIDR
+ FTMTRY
+ FTMUSDTn
+"""
+
 
 df_Pairs = pd.read_sql_query(sqlSymbols, conn)
 
 for index1, row1 in df_Pairs.iterrows():
     Symbol = row1["Pair"]
 
-    Symbol += "asdasd"
     #Symbol = "SANTOSUSDT"
     file_in_Zip= Symbol + "-aggTrades-2022-04.csv"
 
     fileNameToDownload = Symbol + "-aggTrades-2022-04.zip"
     url = "https://data.binance.vision/data/spot/monthly/aggTrades/"+Symbol+"/" + fileNameToDownload
 
-    savezipFilePath = "C:\\MyProjects2\\CC\\Binance_Api\\RawDataDownloader\\MonthlyDownloaded\\"
+    savezipFilePath = "E:\\MyProjects2\\Live_Services\\RawDataDownloader\\MonthlyDownloaded\\"
 
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f') , Symbol , " Downloading..." )
     req = requests.get(url)
@@ -81,10 +95,10 @@ for index1, row1 in df_Pairs.iterrows():
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f') , Symbol , " Db Processing..." )
 
         # server = 'myserver,port' # to specify an alternate port
-        server = '192.168.0.10' 
-        database = 'Binance' 
-        username = 'sa' 
-        password = 'utkancikasd123!' 
+        server =  db_credentials.server 
+        database = 'Binance'
+        username = db_credentials.username 
+        password = db_credentials.password 
         conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
         Counter = 0

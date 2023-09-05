@@ -8,17 +8,17 @@ import numpy as np
 import requests
 import pyodbc
 from datetime import datetime
+import db_credentials
 
 Symbol = "" 
-# server = 'myserver,port' # to specify an alternate port
-server = '192.168.0.10' 
-database = 'Binance' 
-username = 'sa' 
-password = 'utkancikasd123!' 
+server =  db_credentials.server 
+database = 'Binance'
+username = db_credentials.username 
+password = db_credentials.password
 conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
 #Read Symbols List
-sqlSymbols = "select distinct(Pair) from OneMinute where Pair != 'SANTOSUSDT'"
+sqlSymbols = "select distinct(Pair) from Symbols where Pair Not IN (Select distinct(Pair) from [dbo].[OneMinute])"
 
 df_Pairs = pd.read_sql_query(sqlSymbols, conn)
 
@@ -80,11 +80,10 @@ for index1, row1 in df_Pairs.iterrows():
 
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f') , Symbol , " Db Processing..." )
 
-        # server = 'myserver,port' # to specify an alternate port
-        server = '192.168.0.10' 
-        database = 'Binance' 
-        username = 'sa' 
-        password = 'utkancikasd123!' 
+        server =  db_credentials.server 
+        database = 'Binance'
+        username = db_credentials.username 
+        password = db_credentials.password
         conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
         Counter = 0
@@ -117,3 +116,4 @@ for index1, row1 in df_Pairs.iterrows():
         print(Symbol, " Inserted remaining last ", Counter, " records")
         sqlInsert = ""  
         Counter = 0  
+    
